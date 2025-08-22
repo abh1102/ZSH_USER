@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1078262936239",
+    "project_id": "zanaduhealth-staging",
+    "storage_bucket": "zanaduhealth-staging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078262936239:android:84511bee5f632ea8085a5a",
+        "android_client_info": {
+          "package_name": "com.zanaduhealth.beta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078262936239-0qsc258g19cg12shkbocdfiksi53pg07.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zanaduhealth.beta",
+            "certificate_hash": "5df7c9ad613a137dcd81c839cf84c90205eed960"
+          }
+        },
+        {
+          "client_id": "1078262936239-38ijgrlcb6ha365i0vjv3e6c365dv5el.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1ZvAwVJ54MijMy3mQivOG3xR_HOfkiLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078262936239-38ijgrlcb6ha365i0vjv3e6c365dv5el.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1078262936239-84hldgblchd258p8lqlggj4lf75aud4d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zanaduhealth.beta"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
