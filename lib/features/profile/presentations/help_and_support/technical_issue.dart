@@ -10,6 +10,7 @@ import 'package:zanadu/common/utils/dialog_utils.dart';
 import 'package:zanadu/core/constants.dart';
 import 'package:zanadu/core/routes.dart';
 import 'package:zanadu/features/profile/logic/cubits/about_cubit/about_cubit.dart';
+import 'package:zanadu/features/profile/presentations/help_and_support/repository/zendeskService.dart';
 import 'package:zanadu/features/sessions/widgets/appbar_without_silver.dart';
 import 'package:zanadu/widgets/all_button.dart';
 
@@ -273,17 +274,37 @@ class _HelpSupportTechnicalIssueState extends State<HelpSupportTechnicalIssue> {
                         ColoredButtonWithoutHW(
                           text: "Submit",
                           isLoading: cubit.state is AboutLoadingState,
-                          onpressed: () {
+                          onpressed: () async {
                             if (selectedGender.isEmpty ||
                                 descriptionController.text.trim().isEmpty) {
                               showSnackBar("Please fill all the details");
+                              return;
+                            }
+
+                            cubit.emit(AboutLoadingState());
+
+                            String? uploadToken;
+
+                            // 👉 If file selected, upload first
+                            if (selectedFile != null) {
+                              uploadToken = await ZendeskService.uploadAttachment(selectedFile!);
+                            }
+
+                            // 👉 Then create ticket
+                            bool success = await ZendeskService.createTicket(
+                              category: selectedGender,
+                              description: descriptionController.text.trim(),
+                              uploadToken: uploadToken,
+                            );
+
+                            if (success) {
+                              cubit.emit(TechnicalIssuePostedState("Technical Issue Created Successfully"));
+
                             } else {
-                              BlocProvider.of<AboutCubit>(context).postIssue(
-                                  issue: selectedGender,
-                                  descrition: descriptionController.text.trim(),
-                                  image: _selectedFilePath);
+                              cubit.emit(AboutErrorState("Zendesk ticket creation failed"));
                             }
                           },
+
                           size: 18,
                           weight: FontWeight.w500,
                           verticalPadding: 16,
