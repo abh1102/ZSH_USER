@@ -56,6 +56,10 @@ class LoginCubit extends Cubit<LoginState> {
       myuid = loginModel.uid;
       // myuid = generateUnique9DigitNumber(loginModel.uid ?? 123456789);
 
+      if (loginModel.email != null && loginModel.email!.isNotEmpty) {
+        await Preferences.saveUserEmail(loginModel.email!);
+      }
+
       List<GetAnswerModel> healthIntakeAnswers = await healthrepository
           .fetchAllHealthIntakeAnswer(userModel.userInfo?.userId ?? '');
 

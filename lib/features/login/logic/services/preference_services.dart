@@ -13,12 +13,24 @@ class Preferences {
     log("Details saved!");
   }
 
+  static Future<void> saveUserEmail(String email) async {
+    SharedPreferences instance = await SharedPreferences.getInstance();
+    await instance.setString("user_email", email);
+    userEmail = email;
+    log("User email saved!");
+  }
+
   static Future<Map<String, dynamic>> fetchUserDetails() async {
     SharedPreferences instance = await SharedPreferences.getInstance();
     String? email = instance.getString("email");
     String? password = instance.getString("password");
   
     return {"email": email, "password": password,};
+  }
+
+  static Future<String?> fetchUserEmail() async {
+    SharedPreferences instance = await SharedPreferences.getInstance();
+    return instance.getString("user_email");
   }
 
   static Future<void> saveAccessToken(String token) async {
