@@ -122,13 +122,9 @@ class ZendeskService {
         },
         body: jsonEncode(body),
       )
-          .timeout(const Duration(seconds: 20));
-
-      print("Ticket Response Code: ${res.statusCode}");
-      print("Ticket Response Body: ${res.body}");
-
+          .timeout(const Duration(seconds: 40));
       if (res.statusCode == 201) {
-        print("✅ Ticket Created Successfully!");
+        print(" Ticket Created Successfully!");
         return true;
       }
 

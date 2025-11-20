@@ -111,11 +111,11 @@ class _HelpSupportTechnicalIssueState extends State<HelpSupportTechnicalIssue> {
           showSnackBar(state.error);
         }
         if (state is TechnicalIssuePostedState) {
-          showGreenSnackBar("Technical Issue Creaed Successfully");
           selectedGender = '';
           descriptionController.clear();
           _selectedFilePath = null;
           selectedFile = null;
+          showTicketSuccessDialog(context);
         }
       },
       child: Scaffold(
@@ -317,6 +317,79 @@ class _HelpSupportTechnicalIssueState extends State<HelpSupportTechnicalIssue> {
       ),
     );
   }
+  void showTicketSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Green Tick Icon
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green.withOpacity(0.1),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Ticket Created!",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  "Your technical issue ticket has been submitted successfully.",
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 25),
+
+                // OK Button
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // close dialog
+                    Navigator.of(context).pop(); // navigate back to previous screen
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    minimumSize: const Size(120, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }
 
 class DynamicPopupMenuWithBG extends StatelessWidget {
