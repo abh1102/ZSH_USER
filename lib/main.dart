@@ -19,7 +19,6 @@ import 'package:zanadu/features/profile/logic/provider/edit_profile_provider.dar
 import 'package:zanadu/features/sessions/logic/cubit/feedback_cubit/feedback_cubit.dart';
 import 'package:zanadu/features/signup/logic/provider/signup_provider.dart';
 import 'package:zanadu/features/video_calling/logic/chat_provider.dart';
-import 'package:zendesk_messaging/zendesk_messaging.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -48,9 +47,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await ZendeskMessaging.initialize(
- androidChannelKey: 'eyJzZXR0aW5nc191cmwiOiJodHRwczovL2dlbm1ha2hlbHAuemVuZGVzay5jb20vbW9iaWxlX3Nka19hcGkvc2V0dGluZ3MvMDFLOVZKRjBGR0RQMkhQVEpUVjNGWjY3MEcuanNvbiJ9', iosChannelKey: 'eyJzZXR0aW5nc191cmwiOiJodHRwczovL2dlbm1ha2hlbHAuemVuZGVzay5jb20vbW9iaWxlX3Nka19hcGkvc2V0dGluZ3MvMDFLOVZKRjBGR0RQMkhQVEpUVjNGWjY3MEcuanNvbiJ9',
-  );
+
 
   try {
     if (Platform.isIOS) {

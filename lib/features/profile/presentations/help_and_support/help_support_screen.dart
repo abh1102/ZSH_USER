@@ -5,7 +5,6 @@ import 'package:zanadu/core/routes.dart';
 import 'package:zanadu/features/profile/widgets/help_support_container.dart';
 import 'package:zanadu/features/sessions/widgets/appbar_without_silver.dart';
 import 'package:zanadu/widgets/url_launcher.dart';
-import 'package:zendesk_messaging/zendesk_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zanadu/core/constants.dart';

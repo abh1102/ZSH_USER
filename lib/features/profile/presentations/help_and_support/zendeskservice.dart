@@ -4,11 +4,16 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:zanadu/features/login/logic/services/preference_services.dart';
 
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:zanadu/features/login/logic/services/preference_services.dart';
+
 class ZendeskService {
-  // BASE ZENDESK CONFIG
   static const String subdomain = "zanaduhealthhelp.zendesk.com";
 
-  // MUST MATCH THE AGENT WHO CREATED THE TOKEN
+  // Agent email MUST match the token creator
   static const String agentEmail = "jb@zanaduhealth.com";
   static const String apiToken = "GCEJnVxVaFzibFmMMNrLxIKpQGpIXVSaz8olV5Ss";
 
@@ -19,9 +24,7 @@ class ZendeskService {
 
   static String? lastUserEmail;
 
-  // ------------------------------------------------------
-  // MIME TYPE
-  // ------------------------------------------------------
+  // MIME
   static MediaType _mime(String path) {
     final ext = path.split(".").last.toLowerCase();
     switch (ext) {
@@ -37,9 +40,7 @@ class ZendeskService {
     }
   }
 
-  // ------------------------------------------------------
-  // UPLOAD ATTACHMENT
-  // ------------------------------------------------------
+  // -------------------- UPLOAD ATTACHMENT --------------------
   static Future<String?> uploadAttachment(File file) async {
     try {
       final fileName = file.path.split("/").last;
@@ -50,7 +51,6 @@ class ZendeskService {
       );
 
       request.headers["Authorization"] = authHeader;
-
       request.files.add(
         await http.MultipartFile.fromPath(
           "file",
@@ -69,14 +69,12 @@ class ZendeskService {
       print("❌ Upload failed: $body");
       return null;
     } catch (e) {
-      print("❌ Upload Exception: $e");
+      print("❌ Upload Error: $e");
       return null;
     }
   }
 
-  // ------------------------------------------------------
-  // CREATE TICKET (FIXED)
-  // ------------------------------------------------------
+  // -------------------- CREATE TICKET --------------------
   static Future<bool> createTicket({
     required String category,
     required String description,
@@ -84,16 +82,19 @@ class ZendeskService {
   }) async {
     final url = Uri.parse("https://$subdomain/api/v2/requests.json");
 
-    // Logged-in user email
+    // Get stored email
     String? userEmail = await Preferences.fetchUserEmail();
     userEmail = userEmail?.trim();
 
-    if (userEmail == null || userEmail.isEmpty) {
-      print("❌ Cannot create ticket — no user email available");
+    // Validate email
+    if (userEmail == null || userEmail.isEmpty || !userEmail.contains("@")) {
+      print("❌ FAILED: Invalid requester email: $userEmail");
       return false;
     }
 
     lastUserEmail = userEmail;
+
+    print("📨 Creating ticket for: $userEmail");
 
     final body = {
       "request": {
@@ -115,12 +116,11 @@ class ZendeskService {
         headers: {
           "Authorization": authHeader,
           "Content-Type": "application/json",
-          "X-On-Behalf-Of": userEmail, // IMPORTANT FIX 🚀
         },
         body: jsonEncode(body),
       );
 
-      print("📡 CREATE: ${res.statusCode} | ${res.body}");
+      print("📡 CREATE RESPONSE ${res.statusCode} | ${res.body}");
 
       return res.statusCode == 201;
     } catch (e) {
@@ -129,28 +129,27 @@ class ZendeskService {
     }
   }
 
-  // ------------------------------------------------------
-  // FETCH TICKETS FOR THAT USER ONLY
-  // ------------------------------------------------------
+  // -------------------- FETCH TICKETS --------------------
   static Future<List<dynamic>> fetchTickets() async {
     lastUserEmail ??= (await Preferences.fetchUserEmail())?.trim();
 
-    if (lastUserEmail == null) {
-      print("❌ Cannot fetch tickets — no user email stored");
+    if (lastUserEmail == null || lastUserEmail!.isEmpty) {
+      print("❌ No user email saved — cannot fetch tickets");
       return [];
     }
+
+    final email = lastUserEmail!;
+    print("🔍 Fetching tickets for: $email");
 
     final uri = Uri.https(
       subdomain,
       "/api/v2/search.json",
       {
-        "query": "requester:$lastUserEmail type:ticket",
+        "query": "requester:$email type:ticket",
         "sort_by": "created_at",
         "sort_order": "desc",
       },
     );
-
-    print("🔍 Fetch URL: $uri");
 
     try {
       final res = await http.get(
@@ -161,8 +160,7 @@ class ZendeskService {
         },
       );
 
-      print("📡 FETCH: ${res.statusCode}");
-      print("📡 RESPONSE: ${res.body}");
+      print("📡 FETCH RESPONSE ${res.statusCode}: ${res.body}");
 
       if (res.statusCode == 200) {
         return jsonDecode(res.body)["results"] ?? [];
