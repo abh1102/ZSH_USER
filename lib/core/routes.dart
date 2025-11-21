@@ -84,6 +84,8 @@ import 'package:zanadu/features/signup/presentations/signUp_first.dart';
 import 'package:zanadu/features/signup/presentations/signup_second.dart';
 import 'package:zanadu/features/video_calling/group_video_screens.dart';
 
+import '../features/profile/presentations/help_and_support/tickethistoryscreen.dart';
+
 /// All of the screens in the app will be added here for reference
 class Screens {
   static const splash = "splash";
@@ -113,6 +115,7 @@ class Screens {
   static const myAccount = 'myAccount';
   static const myPlan = "myPlan";
   static const helpSupport = 'helpSupport';
+  static const ticketHistoryScreen="ticketHistoryScreen";
   static const helpSupportAbout = 'helpSupportAbout';
   static const changePassword = 'changePassword';
   static const changePassPassword = 'changePassPassword';
@@ -209,6 +212,10 @@ class Routes {
       case Screens.homeBottomBar:
         return CupertinoPageRoute(
           builder: (context) => const HomeBottomBar(),
+        );
+      case Screens.ticketHistoryScreen:
+        return CupertinoPageRoute(
+          builder: (context) => TicketHistoryScreen(),
         );
 
       case Screens.browseOfferingDetail:

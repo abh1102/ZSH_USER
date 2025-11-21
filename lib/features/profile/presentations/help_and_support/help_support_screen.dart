@@ -14,6 +14,8 @@ import 'package:zanadu/features/profile/widgets/help_support_container.dart';
 import 'package:zanadu/features/sessions/widgets/appbar_without_silver.dart';
 import 'package:zanadu/widgets/url_launcher.dart';
 
+import '../../widgets/dia,og_box.dart';
+
 class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
 
@@ -62,7 +64,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   height(28),
                   HelpSupportContainer(
                     onpressed: () {
-                      Routes.goTo(Screens.helpSupportTechnical);
+                      showSupportDialog(context, "technical");
                     },
                     text: "Technical Issues",
                     svg: "assets/icons/settings.svg",

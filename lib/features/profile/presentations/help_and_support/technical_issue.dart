@@ -10,10 +10,9 @@ import 'package:zanadu/common/utils/dialog_utils.dart';
 import 'package:zanadu/core/constants.dart';
 import 'package:zanadu/core/routes.dart';
 import 'package:zanadu/features/profile/logic/cubits/about_cubit/about_cubit.dart';
-import 'package:zanadu/features/profile/presentations/help_and_support/repository/zendeskService.dart';
 import 'package:zanadu/features/sessions/widgets/appbar_without_silver.dart';
 import 'package:zanadu/widgets/all_button.dart';
-
+import 'zendeskservice.dart';
 class HelpSupportTechnicalIssue extends StatefulWidget {
   const HelpSupportTechnicalIssue({super.key});
 
