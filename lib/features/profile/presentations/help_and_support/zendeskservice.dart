@@ -2,173 +2,134 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:zanadu/features/login/logic/services/preference_services.dart';
-
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:zanadu/features/login/logic/services/preference_services.dart';
 
 class ZendeskService {
-  static const String subdomain = "zanaduhealthhelp.zendesk.com";
+  static const String _baseUrl = "https://api.zanaduhealth.com/api/zendesk";
 
-  // Agent email MUST match the token creator
-  static const String agentEmail = "jb@zanaduhealth.com";
-  static const String apiToken = "GCEJnVxVaFzibFmMMNrLxIKpQGpIXVSaz8olV5Ss";
-
-  static String get authHeader {
-    final raw = "$agentEmail/token:$apiToken";
-    return "Basic ${base64Encode(utf8.encode(raw))}";
-  }
-
-  static String? lastUserEmail;
-
-  // MIME
-  static MediaType _mime(String path) {
-    final ext = path.split(".").last.toLowerCase();
-    switch (ext) {
-      case "jpg":
-      case "jpeg":
-        return MediaType("image", "jpeg");
-      case "png":
-        return MediaType("image", "png");
-      case "pdf":
-        return MediaType("application", "pdf");
-      default:
-        return MediaType("application", "octet-stream");
-    }
-  }
-
-  // -------------------- UPLOAD ATTACHMENT --------------------
-  static Future<String?> uploadAttachment(File file) async {
+  /// Upload file to Zendesk
+  /// Returns upload token and fileKey on success, null on failure
+  static Future<Map<String, dynamic>?> uploadFile(String filePath) async {
     try {
-      final fileName = file.path.split("/").last;
+      final file = File(filePath);
+      final uri = Uri.parse("$_baseUrl/upload");
+      final bytes = await file.readAsBytes();
 
-      final request = http.MultipartRequest(
-        "POST",
-        Uri.parse("https://$subdomain/api/v2/uploads.json?filename=$fileName"),
+      // Detect MIME type from file extension and bytes
+      final mimeType = lookupMimeType(file.path, headerBytes: bytes) ?? "application/octet-stream";
+      final filename = file.path.split('/').last.split('\\').last;
+
+      print("UPLOAD FILE: $filename, MIME: $mimeType");
+
+      final multipartFile = http.MultipartFile.fromBytes(
+        "file",
+        bytes,
+        filename: filename,
+        contentType: MediaType.parse(mimeType),
       );
 
-      request.headers["Authorization"] = authHeader;
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          "file",
-          file.path,
-          contentType: _mime(file.path),
-        ),
-      );
+      final request = http.MultipartRequest("POST", uri)
+        ..files.add(multipartFile);
 
-      final res = await request.send();
-      final body = await res.stream.bytesToString();
+      final response = await request.send();
+      final body = await response.stream.bytesToString();
 
-      if (res.statusCode == 201) {
-        return jsonDecode(body)["upload"]["token"];
+      print("UPLOAD STATUS: ${response.statusCode}");
+      print("UPLOAD BODY: $body");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(body);
+        return data;
       }
 
-      print("❌ Upload failed: $body");
       return null;
     } catch (e) {
-      print("❌ Upload Error: $e");
+      print("UPLOAD ERROR: $e");
       return null;
     }
   }
 
-  // -------------------- CREATE TICKET --------------------
-  static Future<bool> createTicket({
+  /// Create a Zendesk ticket
+  static Future<Map<String, dynamic>?> createTicket({
     required String category,
     required String description,
     String? uploadToken,
+    String? fileKey,
   }) async {
-    final url = Uri.parse("https://$subdomain/api/v2/requests.json");
+    final userEmail = await Preferences.fetchUserEmail();
 
-    // Get stored email
-    String? userEmail = await Preferences.fetchUserEmail();
-    userEmail = userEmail?.trim();
-
-    // Validate email
-    if (userEmail == null || userEmail.isEmpty || !userEmail.contains("@")) {
-      print("❌ FAILED: Invalid requester email: $userEmail");
-      return false;
+    if (userEmail == null || userEmail.isEmpty) {
+      print("CREATE TICKET ERROR: User email not found");
+      return null;
     }
 
-    lastUserEmail = userEmail;
-
-    print("📨 Creating ticket for: $userEmail");
-
-    final body = {
-      "request": {
-        "subject": "Technical Issue - $category",
-        "requester": {
-          "email": userEmail,
-          "name": userEmail.split("@")[0],
-        },
-        "comment": {
-          "body": description,
-          if (uploadToken != null) "uploads": [uploadToken],
-        }
-      }
-    };
-
     try {
-      final res = await http.post(
-        url,
-        headers: {
-          "Authorization": authHeader,
-          "Content-Type": "application/json",
-        },
+      final uri = Uri.parse("$_baseUrl/create-ticket");
+
+      final body = {
+        "userEmail": userEmail,
+        "category": category,
+        "description": description,
+        if (uploadToken != null) "uploadToken": uploadToken,
+        if (fileKey != null) "fileKey": fileKey,
+      };
+
+      final response = await http.post(
+        uri,
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );
 
-      print("📡 CREATE RESPONSE ${res.statusCode} | ${res.body}");
+      print("CREATE TICKET STATUS: ${response.statusCode}");
+      print("CREATE TICKET RESPONSE: ${response.body}");
 
-      return res.statusCode == 201;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      }
+
+      return null;
     } catch (e) {
-      print("❌ Create Ticket Error: $e");
-      return false;
+      print("CREATE TICKET ERROR: $e");
+      return null;
     }
   }
 
-  // -------------------- FETCH TICKETS --------------------
+  /// Fetch tickets for the current user
   static Future<List<dynamic>> fetchTickets() async {
-    lastUserEmail ??= (await Preferences.fetchUserEmail())?.trim();
+    final userEmail = await Preferences.fetchUserEmail();
 
-    if (lastUserEmail == null || lastUserEmail!.isEmpty) {
-      print("❌ No user email saved — cannot fetch tickets");
+    if (userEmail == null || userEmail.isEmpty) {
+      print("FETCH TICKETS ERROR: User email not found");
       return [];
     }
 
-    final email = lastUserEmail!;
-    print("🔍 Fetching tickets for: $email");
-
-    final uri = Uri.https(
-      subdomain,
-      "/api/v2/search.json",
-      {
-        "query": "requester:$email type:ticket",
-        "sort_by": "created_at",
-        "sort_order": "desc",
-      },
-    );
-
     try {
-      final res = await http.get(
+      final uri = Uri.parse("$_baseUrl/tickets?userEmail=$userEmail");
+
+      final response = await http.get(
         uri,
-        headers: {
-          "Authorization": authHeader,
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
       );
 
-      print("📡 FETCH RESPONSE ${res.statusCode}: ${res.body}");
+      print("FETCH TICKETS STATUS: ${response.statusCode}");
+      print("FETCH TICKETS RESPONSE: ${response.body}");
 
-      if (res.statusCode == 200) {
-        return jsonDecode(res.body)["results"] ?? [];
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data;
+        } else if (data is Map && data.containsKey("tickets")) {
+          return data["tickets"] ?? [];
+        } else if (data is Map && data.containsKey("results")) {
+          return data["results"] ?? [];
+        }
+        return [];
       }
 
       return [];
     } catch (e) {
-      print("❌ Fetch Ticket Error: $e");
+      print("FETCH TICKETS ERROR: $e");
       return [];
     }
   }

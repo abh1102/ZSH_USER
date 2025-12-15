@@ -283,22 +283,31 @@ class _HelpSupportTechnicalIssueState extends State<HelpSupportTechnicalIssue> {
                             cubit.emit(AboutLoadingState());
 
                             String? uploadToken;
+                            String? fileKey;
 
                             // 👉 If file selected, upload first
                             if (selectedFile != null) {
-                              uploadToken = await ZendeskService.uploadAttachment(selectedFile!);
+                              final uploadResult = await ZendeskService.uploadFile(selectedFile!.path);
+                              if (uploadResult != null) {
+                                uploadToken = uploadResult["uploadToken"]?.toString();
+                                fileKey = selectedFile!.path.split('/').last.split('\\').last;
+                                print("EXTRACTED TOKEN: $uploadToken, FILEKEY: $fileKey");
+                              } else {
+                                cubit.emit(AboutErrorState("Error uploading file"));
+                                return;
+                              }
                             }
 
                             // 👉 Then create ticket
-                            bool success = await ZendeskService.createTicket(
+                            final success = await ZendeskService.createTicket(
                               category: selectedGender,
                               description: descriptionController.text.trim(),
                               uploadToken: uploadToken,
+                              fileKey: fileKey,
                             );
 
-                            if (success) {
+                            if (success != null) {
                               cubit.emit(TechnicalIssuePostedState("Technical Issue Created Successfully"));
-
                             } else {
                               cubit.emit(AboutErrorState("Zendesk ticket creation failed"));
                             }
