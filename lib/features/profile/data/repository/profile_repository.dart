@@ -261,4 +261,79 @@ class ProfileRepository {
       rethrow;
     }
   }
+
+  Future<List<dynamic>> fetchTechnicalIssues() async {
+    try {
+      Response response = await _api.sendRequest.get(
+        "/admin/technical-issues",
+        options: ApiUtils.getAuthOptions(),
+      );
+
+      ApiResponse apiResponse = ApiResponse.fromResponse(response);
+
+      if (!apiResponse.status) {
+        throw apiResponse.message.toString();
+      }
+
+      final data = apiResponse.data;
+      if (data is List) {
+        return data;
+      }
+      if (data is Map) {
+        final results = data["results"];
+        if (results is List) {
+          return results;
+        }
+        final issues = data["issues"];
+        if (issues is List) {
+          return issues;
+        }
+      }
+
+      return [];
+    } on DioException catch (ex) {
+      if (ex.response != null) {
+        ApiResponse apiResponse = ApiResponse.fromResponse(ex.response!);
+        throw apiResponse.message.toString();
+      } else {
+        throw "An error occurred while processing the request.";
+      }
+    } catch (ex) {
+      rethrow;
+    }
+  }
+
+  Future<String> updateTechnicalIssue({
+    required String technicalIssueId,
+    required String status,
+    required String comment,
+  }) async {
+    try {
+      Response response = await _api.sendRequest.patch(
+        "/admin/update-technical-issue/$technicalIssueId",
+        data: {
+          "status": status,
+          "comment": comment,
+        },
+        options: ApiUtils.getAuthOptions(),
+      );
+
+      ApiResponse apiResponse = ApiResponse.fromResponse(response);
+
+      if (!apiResponse.status) {
+        throw apiResponse.message.toString();
+      }
+
+      return apiResponse.message.toString();
+    } on DioException catch (ex) {
+      if (ex.response != null) {
+        ApiResponse apiResponse = ApiResponse.fromResponse(ex.response!);
+        throw apiResponse.message.toString();
+      } else {
+        throw "An error occurred while processing the request.";
+      }
+    } catch (ex) {
+      rethrow;
+    }
+  }
 }

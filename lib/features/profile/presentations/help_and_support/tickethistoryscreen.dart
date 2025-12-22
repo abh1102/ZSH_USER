@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'zendeskservice.dart';
+import 'package:zanadu/features/profile/data/repository/profile_repository.dart';
 import '../../../../core/constants.dart';
 import '../../../sessions/widgets/appbar_without_silver.dart';
 
@@ -13,7 +13,8 @@ class TicketHistoryScreen extends StatefulWidget {
 
 class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
   bool loading = true;
-  List tickets = [];
+  List<dynamic> tickets = [];
+  final ProfileRepository _repository = ProfileRepository();
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
   // }
   Future<void> loadTickets() async {
     try {
-      tickets = await ZendeskService.fetchTickets();
+      tickets = await _repository.fetchTechnicalIssues();
     } catch (e) {
       print('Error loading tickets: $e');
       tickets = [];
@@ -45,41 +46,174 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
       }
     }
   }
-  // STATUS CHIP UI
-  Widget statusChip(String status) {
-    Color bg;
-    Color text;
 
-    switch (status.toLowerCase()) {
-      case "open":
-        bg = Colors.orange.shade100;
-        text = Colors.orange.shade800;
-        break;
-      case "pending":
-        bg = Colors.blue.shade100;
-        text = Colors.blue.shade800;
-        break;
-      case "solved":
-        bg = Colors.green.shade100;
-        text = Colors.green.shade800;
-        break;
-      default:
-        bg = Colors.grey.shade200;
-        text = Colors.grey.shade700;
+  String _issueId(dynamic issue) {
+    if (issue is Map) {
+      return (issue['_id'] ?? issue['id'] ?? '').toString();
     }
+    return '';
+  }
 
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(50),
+  String _issueCategory(dynamic issue) {
+    if (issue is Map) {
+      return (issue['categoryName'] ?? issue['category'] ?? issue['issue'] ?? '')
+          .toString();
+    }
+    return '';
+  }
+
+  String _issueDescription(dynamic issue) {
+    if (issue is Map) {
+      return (issue['description'] ?? issue['message'] ?? issue['details'] ?? '')
+          .toString();
+    }
+    return '';
+  }
+
+  String _issueStatus(dynamic issue) {
+    if (issue is Map) {
+      return (issue['status'] ?? '').toString();
+    }
+    return '';
+  }
+
+  Widget _statusText(String status) {
+    final s = status.toUpperCase();
+    return Text(
+      s.isEmpty ? 'OPEN' : s,
+      style: TextStyle(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textDark,
       ),
-      child: Text(
-        status.toUpperCase(),
-        style: TextStyle(
-          color: text,
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w600,
+    );
+  }
+
+  Future<void> _showStatusUpdateDialog({
+    required String issueId,
+    required String newStatus,
+  }) async {
+    final TextEditingController controller = TextEditingController();
+    bool submitting = false;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text(
+                'Add Comment',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDark,
+                ),
+              ),
+              content: TextField(
+                controller: controller,
+                minLines: 3,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  hintText: 'Write your comment...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: submitting
+                      ? null
+                      : () {
+                          Navigator.pop(context, false);
+                        },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: submitting
+                      ? null
+                      : () async {
+                          final comment = controller.text.trim();
+                          if (comment.isEmpty) {
+                            return;
+                          }
+                          setStateDialog(() {
+                            submitting = true;
+                          });
+                          try {
+                            await _repository.updateTechnicalIssue(
+                              technicalIssueId: issueId,
+                              status: newStatus,
+                              comment: comment,
+                            );
+                            if (context.mounted) {
+                              Navigator.pop(context, true);
+                            }
+                          } catch (e) {
+                            setStateDialog(() {
+                              submitting = false;
+                            });
+                          }
+                        },
+                  child: submitting
+                      ? SizedBox(
+                          height: 18.h,
+                          width: 18.w,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Comment'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result == true) {
+      setState(() {
+        loading = true;
+      });
+      await loadTickets();
+    }
+  }
+
+  Widget _updateStatusMenu({
+    required String issueId,
+  }) {
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        _showStatusUpdateDialog(issueId: issueId, newStatus: value);
+      },
+      itemBuilder: (context) => const [
+        PopupMenuItem(value: 'RESOLVED', child: Text('RESOLVED')),
+        PopupMenuItem(value: 'CLOSED', child: Text('CLOSED')),
+        PopupMenuItem(value: 'REOPEN', child: Text('REOPEN')),
+      ],
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: AppColors.textLight.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Update status',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: AppColors.textDark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(width: 6.w),
+            Icon(Icons.keyboard_arrow_down, size: 18.sp),
+          ],
         ),
       ),
     );
@@ -109,44 +243,61 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
         padding: EdgeInsets.all(20.w),
         itemCount: tickets.length,
         itemBuilder: (context, index) {
-          final t = tickets[index];
+          final issue = tickets[index];
+          final id = _issueId(issue);
+          final category = _issueCategory(issue);
+          final description = _issueDescription(issue);
+          final status = _issueStatus(issue);
 
           return Container(
-            margin: EdgeInsets.only(bottom: 15.h),
-            padding: EdgeInsets.all(16.w),
+            margin: EdgeInsets.only(bottom: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              gradient: Insets.fixedGradient(opacity: 0.06),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 8,
-                  offset: Offset(0, 3),
-                )
-              ],
+              color: const Color(0xFFCFF3D7),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Subject
-                Text(
-                  t["subject"] ?? "No Subject",
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textDark,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ticket Category : ${category.isEmpty ? '-': category}',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          SizedBox(height: 6.h),
+                          Text(
+                            description.isEmpty ? '-' : description,
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    _statusText(status),
+                  ],
                 ),
                 SizedBox(height: 10.h),
-
-                // Status Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    statusChip(t["status"]),
-                    Icon(Icons.chevron_right, color: AppColors.textLight),
-                  ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _updateStatusMenu(issueId: id),
+                    ],
+                  ),
                 ),
               ],
             ),
