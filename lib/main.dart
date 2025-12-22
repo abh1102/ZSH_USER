@@ -19,6 +19,9 @@ import 'package:zanadu/features/profile/logic/provider/edit_profile_provider.dar
 import 'package:zanadu/features/sessions/logic/cubit/feedback_cubit/feedback_cubit.dart';
 import 'package:zanadu/features/signup/logic/provider/signup_provider.dart';
 import 'package:zanadu/features/video_calling/logic/chat_provider.dart';
+import 'package:zanadu/core/widgets/floating_chatbot_button.dart';
+import 'package:zanadu/core/widgets/zendesk_chatbot_button.dart';
+import 'package:zanadu/core/config/zendesk_config.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -167,7 +170,14 @@ class MyApp extends StatelessWidget {
                 return MediaQuery(
                   data: MediaQuery.of(context)
                       .copyWith(textScaler: const TextScaler.linear(1.0)),
-                  child: child!,
+                  child: Stack(
+                    children: [
+                      child!,
+                      ZendeskConfig.useRealZendesk
+                          ? const ZendeskChatbotButton()
+                          : const FloatingChatbotButton(),
+                    ],
+                  ),
                 );
               },
               debugShowCheckedModeBanner: false,

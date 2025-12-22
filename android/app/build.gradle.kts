@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId = "com.zanaduhealth.beta"
-        minSdkVersion(23)
+        minSdkVersion(24)
         targetSdkVersion(flutter.targetSdkVersion)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
