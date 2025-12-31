@@ -19,6 +19,46 @@ class LoginCubit extends Cubit<LoginState> {
 
   final HealthCoachRepository healthrepository = HealthCoachRepository();
 
+  Future<void> restoreSession() async {
+    emit(LoginLoadingState());
+    try {
+      String? token = await Preferences.fetchAccessToken();
+      
+      if (token != null && token.isNotEmpty) {
+        // Token exists, fetch user info to restore session
+        UserModel userModel = await _repository.fetchUserInfo(token: token);
+        
+        // Restore global variables
+        myUser = userModel;
+        accessToken = token;
+        userEmail = userModel.email;
+        myuid = userModel.uid;
+        
+        // Save user email if available
+        if (userModel.email != null && userModel.email!.isNotEmpty) {
+          await Preferences.saveUserEmail(userModel.email!);
+        }
+        
+        // Check health intake data
+        List<GetAnswerModel> healthIntakeAnswers = await healthrepository
+            .fetchAllHealthIntakeAnswer(userModel.userInfo?.userId ?? '');
+        
+        if (healthIntakeAnswers.isEmpty) {
+          emit(LoginHealthLoadedState(userModel));
+        } else {
+          emit(LoginLoadedState(userModel));
+        }
+      } else {
+        // No token found, emit initial state
+        emit(LoginInitialState());
+      }
+    } catch (e) {
+      // Token might be expired or invalid, clear it and emit initial state
+      await Preferences.clear();
+      emit(LoginInitialState());
+    }
+  }
+
   Future<void> login(
       {required String email,
       required String password,

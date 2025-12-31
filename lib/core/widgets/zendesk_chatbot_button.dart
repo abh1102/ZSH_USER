@@ -295,7 +295,7 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
                               ),
                               SizedBox(width: 8.w),
                               Text(
-                                'Zendesk Support',
+                                'Chat Support',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18.sp,

@@ -40,6 +40,16 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkLoginCredentials() async {
+    // First check if we have a valid access token
+    String? token = await Preferences.fetchAccessToken();
+    
+    if (token != null && token.isNotEmpty) {
+      // Token exists, try to restore session
+      _restoreSession();
+      return;
+    }
+    
+    // If no token, check for saved credentials
     final userDetails = await Preferences.fetchUserDetails();
 
     // Check if email and password are available
@@ -47,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
       // If credentials are available, attempt to log in
       _login(userDetails['email'], userDetails['password']);
     } else {
-      print("hrererererererererer");
+      print("No saved credentials found");
       // If no credentials are available, navigate to LoginScreen
       Timer(Duration(milliseconds: 800), () {
         _navigateToNextScreen();
@@ -55,15 +65,26 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
+  void _restoreSession() async {
+    try {
+      print("Restoring session with saved token");
+      await BlocProvider.of<LoginCubit>(context).restoreSession();
+    } catch (e) {
+      print("Session restoration failed: $e");
+      _navigateToNextScreen();
+    }
+  }
+
   void _login(String email, String password) async {
     try {
       // Attempt to log in with the saved credentials
-      print("working one");
+      print("Attempting login with saved credentials");
       await BlocProvider.of<LoginCubit>(context)
           .login(email: email, password: password, rememberMe: true);
 
-      print("working");
+      print("Login with saved credentials successful");
     } catch (e) {
+      print("Login with saved credentials failed: $e");
       _navigateToNextScreen();
     }
   }
