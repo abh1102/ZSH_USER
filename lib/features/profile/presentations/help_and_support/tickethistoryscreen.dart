@@ -89,6 +89,81 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
     );
   }
 
+  String _truncateDescription(String description, {int maxWords = 100}) {
+    if (description.isEmpty) return description;
+    
+    final words = description.split(' ');
+    if (words.length <= maxWords) return description;
+    
+    return '${words.take(maxWords).join(' ')}...';
+  }
+
+  Future<void> _showTicketDetailsDialog({
+    required String ticketId,
+    required String category,
+    required String description,
+    required String status,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Ticket Details',
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textDark,
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDetailRow('Ticket ID:', ticketId),
+              SizedBox(height: 12.h),
+              _buildDetailRow('Category:', category),
+              SizedBox(height: 12.h),
+              _buildDetailRow('Status:', status),
+              SizedBox(height: 12.h),
+              _buildDetailRow('Description:', description),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textDark,
+          ),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          value.isEmpty ? '-' : value,
+          style: TextStyle(
+            fontSize: 13.sp,
+            color: AppColors.textDark,
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> _showStatusUpdateDialog({
     required String issueId,
     required String newStatus,
@@ -249,57 +324,67 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
           final description = _issueDescription(issue);
           final status = _issueStatus(issue);
 
-          return Container(
-            margin: EdgeInsets.only(bottom: 16.h),
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color: const Color(0xFFCFF3D7),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Ticket Category : ${category.isEmpty ? '-': category}',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textDark,
-                            ),
-                          ),
-                          SizedBox(height: 6.h),
-                          Text(
-                            description.isEmpty ? '-' : description,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              color: AppColors.textDark,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    _statusText(status),
-                  ],
-                ),
-                SizedBox(height: 10.h),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+          return GestureDetector(
+            onTap: () {
+              _showTicketDetailsDialog(
+                ticketId: id,
+                category: category,
+                description: description,
+                status: status,
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 16.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFCFF3D7),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _updateStatusMenu(issueId: id),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ticket Category : ${category.isEmpty ? '-': category}',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Text(
+                              description.isEmpty ? '-' : _truncateDescription(description),
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      _statusText(status),
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(height: 10.h),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _updateStatusMenu(issueId: id),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
