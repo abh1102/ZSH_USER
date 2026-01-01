@@ -23,6 +23,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   @override
+  void initState() {
+    super.initState();
+    // Ensure the provider is initialized and credentials are loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<LoginProvider>(context, listen: false);
+      provider.notifyListeners();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<LoginProvider>(context);
 

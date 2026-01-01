@@ -78,7 +78,7 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
         }
         .spinner {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #6C63FF;
+            border-top: 3px solid #00D4FF;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -108,7 +108,7 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
             margin-bottom: 20px;
         }
         #error button {
-            background: #6C63FF;
+            background: linear-gradient(135deg, #00D4FF, #0099FF);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -271,50 +271,72 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16.r),
-                          topRight: Radius.circular(16.r),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.support_agent,
-                                color: Colors.white,
-                                size: 24.sp,
-                              ),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'Chat Support',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 24.sp,
-                            ),
-                            onPressed: _toggleChat,
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.symmetric(
+                    //     horizontal: 16.w,
+                    //     vertical: 12.h,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.white,
+                    //     borderRadius: BorderRadius.only(
+                    //       topLeft: Radius.circular(16.r),
+                    //       topRight: Radius.circular(16.r),
+                    //     ),
+                    //     boxShadow: [
+                    //       BoxShadow(
+                    //         color: Colors.black.withOpacity(0.1),
+                    //         blurRadius: 4,
+                    //         offset: const Offset(0, 1),
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //     children: [
+                    //       Row(
+                    //         children: [
+                    //           Container(
+                    //             width: 32.w,
+                    //             height: 32.h,
+                    //             decoration: BoxDecoration(
+                    //               gradient: const LinearGradient(
+                    //                 colors: [
+                    //                   Color(0xFF00D4FF), // Bright cyan
+                    //                   Color(0xFF0099FF), // Ocean blue
+                    //                 ],
+                    //                 begin: Alignment.topLeft,
+                    //                 end: Alignment.bottomRight,
+                    //               ),
+                    //               shape: BoxShape.circle,
+                    //             ),
+                    //             child: Icon(
+                    //               Icons.support_agent,
+                    //               color: Colors.white,
+                    //               size: 18.sp,
+                    //             ),
+                    //           ),
+                    //           SizedBox(width: 8.w),
+                    //           Text(
+                    //             'Zendesk Support',
+                    //             style: TextStyle(
+                    //               color: Colors.black87,
+                    //               fontSize: 18.sp,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       IconButton(
+                    //         icon: Icon(
+                    //           Icons.close,
+                    //           color: Colors.grey[600],
+                    //           size: 24.sp,
+                    //         ),
+                    //         onPressed: _toggleChat,
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.only(
@@ -362,20 +384,37 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
               width: 60.w,
               height: 60.h,
               decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF),
+                color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 8,
+                    color: const Color(0xFF00D4FF).withOpacity(0.6),
+                    blurRadius: 20,
                     offset: const Offset(0, 4),
+                    spreadRadius: 3,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF0099FF).withOpacity(0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Icon(
-                _isChatOpen ? Icons.close : Icons.chat_bubble,
-                color: Colors.white,
-                size: 28.sp,
+              child: Container(
+                width: 50.w,
+                height: 50.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00D4FF).withOpacity(0.3),                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  _isChatOpen ? Icons.close : Icons.support_agent,
+                  color: Colors.blueAccent,
+                  size: 34.sp,
+                ),
               ),
             ),
           ),

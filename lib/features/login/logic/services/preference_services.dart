@@ -9,6 +9,7 @@ class Preferences {
     SharedPreferences instance = await SharedPreferences.getInstance();
     await instance.setString("email", email);
     await instance.setString("password", password);
+    await instance.setBool("remember_me", true);
   
     log("Details saved!");
   }
@@ -24,8 +25,9 @@ class Preferences {
     SharedPreferences instance = await SharedPreferences.getInstance();
     String? email = instance.getString("email");
     String? password = instance.getString("password");
+    bool? rememberMe = instance.getBool("remember_me");
   
-    return {"email": email, "password": password,};
+    return {"email": email, "password": password, "remember_me": rememberMe ?? false};
   }
 
   static Future<String?> fetchUserEmail() async {
@@ -49,5 +51,13 @@ class Preferences {
   static Future<void> clear() async {
     SharedPreferences instance = await SharedPreferences.getInstance();
     await instance.clear();
+  }
+
+  static Future<void> clearUserDetails() async {
+    SharedPreferences instance = await SharedPreferences.getInstance();
+    await instance.remove("email");
+    await instance.remove("password");
+    await instance.remove("remember_me");
+    log("User details cleared!");
   }
 }

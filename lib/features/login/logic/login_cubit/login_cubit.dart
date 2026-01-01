@@ -31,13 +31,10 @@ class LoginCubit extends Cubit<LoginState> {
         // Restore global variables
         myUser = userModel;
         accessToken = token;
-        userEmail = userModel.email;
-        myuid = userModel.uid;
-        
-        // Save user email if available
-        if (userModel.email != null && userModel.email!.isNotEmpty) {
-          await Preferences.saveUserEmail(userModel.email!);
-        }
+        // userEmail = userModel.email;
+        // myuid = userModel.uid;
+        //
+        // // Save user email if available
         
         // Check health intake data
         List<GetAnswerModel> healthIntakeAnswers = await healthrepository

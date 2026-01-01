@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:zanadu/features/login/logic/login_cubit/login_cubit.dart';
+import 'package:zanadu/features/login/logic/services/preference_services.dart';
 
 class LoginProvider with ChangeNotifier {
   final BuildContext context;
   LoginProvider(this.context) {
     _listenToLoginCubit();
+    _loadSavedCredentials();
   }
 
   bool rememberMe = false;
@@ -61,7 +63,36 @@ class LoginProvider with ChangeNotifier {
 
   void toggleRememberMe(bool value) {
     rememberMe = value;
+    if (!value) {
+      // Clear saved credentials when remember me is unchecked
+      _clearSavedCredentials();
+    }
     notifyListeners();
+  }
+
+  Future<void> _clearSavedCredentials() async {
+    try {
+      await Preferences.clearUserDetails();
+      print("Saved credentials cleared");
+    } catch (e) {
+      print("Error clearing saved credentials: $e");
+    }
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final userDetails = await Preferences.fetchUserDetails();
+      
+      if (userDetails['email'] != null && userDetails['password'] != null && userDetails['remember_me'] == true) {
+        emailController.text = userDetails['email'];
+        passwordController.text = userDetails['password'];
+        rememberMe = true;
+        notifyListeners();
+        print("Saved credentials loaded successfully");
+      }
+    } catch (e) {
+      print("Error loading saved credentials: $e");
+    }
   }
 
   @override

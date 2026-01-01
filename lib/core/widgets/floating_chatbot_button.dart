@@ -63,11 +63,26 @@ class _FloatingChatbotButtonState extends State<FloatingChatbotButton> {
                         vertical: 12.h,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF00D4FF), // Bright cyan
+                            Color(0xFF0099FF), // Ocean blue
+                            Color(0xFF0066FF), // Deep blue
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16.r),
                           topRight: Radius.circular(16.r),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00D4FF).withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -140,20 +155,38 @@ class _FloatingChatbotButtonState extends State<FloatingChatbotButton> {
               width: 60.w,
               height: 60.h,
               decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF),
+                color: Colors.transparent,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 8,
+                    color: const Color(0xFF00D4FF).withOpacity(0.6),
+                    blurRadius: 20,
                     offset: const Offset(0, 4),
+                    spreadRadius: 3,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF0099FF).withOpacity(0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Icon(
-                _isChatOpen ? Icons.close : Icons.chat_bubble,
-                color: Colors.white,
-                size: 28.sp,
+              child: Container(
+                width: 50.w,
+                height: 50.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  _isChatOpen ? Icons.close : Icons.chat_bubble,
+                  color: Colors.white,
+                  size: 28.sp,
+                ),
               ),
             ),
           ),
@@ -301,9 +334,23 @@ class _ChatbotContentState extends State<ChatbotContent> {
                 child: Container(
                   width: 48.w,
                   height: 48.h,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF6C63FF),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF00D4FF), // Bright cyan
+                        Color(0xFF0099FF), // Ocean blue
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00D4FF).withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     Icons.send,
@@ -351,9 +398,23 @@ class ChatBubble extends StatelessWidget {
               width: 32.w,
               height: 32.h,
               margin: EdgeInsets.only(right: 8.w),
-              decoration: const BoxDecoration(
-                color: Color(0xFF6C63FF),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF00D4FF), // Bright cyan
+                    Color(0xFF0099FF), // Ocean blue
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00D4FF).withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
               child: Icon(
                 Icons.support_agent,
@@ -368,9 +429,17 @@ class ChatBubble extends StatelessWidget {
                 vertical: 10.h,
               ),
               decoration: BoxDecoration(
-                color: message.isUser
-                    ? const Color(0xFF6C63FF)
-                    : Colors.grey[200],
+                gradient: message.isUser
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFF00D4FF), // Bright cyan
+                          Color(0xFF0099FF), // Ocean blue
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                color: message.isUser ? null : Colors.grey[200],
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Text(
