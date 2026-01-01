@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:zanadu/core/api.dart';
 import 'package:zanadu/core/constants.dart';
 import 'package:zanadu/features/profile/data/models/about_us_model.dart';
@@ -191,19 +192,32 @@ class ProfileRepository {
       if (!apiResponse.status) {
         throw apiResponse.message.toString();
       }
-      // Extracting the list of technical issue categories from the response
-      List<String> technicalIssueList = List<String>.from(apiResponse.data as List<dynamic>);
 
-      // Returning the list
-      return technicalIssueList;
-    } on DioException catch (ex) {
-      if (ex.response != null) {
-        ApiResponse apiResponse = ApiResponse.fromResponse(ex.response!);
-        throw apiResponse.message.toString();
-      } else {
-        throw "An error occurred while processing the request.";
+      // ✅ Step 1: Cast data properly
+      final data = apiResponse.data;
+
+      if (data == null) {
+        debugPrint("⚠️ API data is null");
+        return [];
       }
+
+      if (data is! List) {
+        debugPrint("❌ API data is not a List, it is ${data.runtimeType}");
+        return [];
+      }
+
+      // ✅ Step 2: Convert list safely
+      List<String> technicalIssueList = data
+          .map((item) {
+        debugPrint("📦 Item: $item | Type: ${item.runtimeType}");
+        return item.toString();
+      })
+          .toList();
+
+      debugPrint("✅ Final List: $technicalIssueList");
+      return technicalIssueList;
     } catch (ex) {
+      debugPrint("🔥 Error: $ex");
       rethrow;
     }
   }
@@ -264,41 +278,75 @@ class ProfileRepository {
 
   Future<List<dynamic>> fetchTechnicalIssues() async {
     try {
+      debugPrint("📡 GET /admin/technical-issues");
+
       Response response = await _api.sendRequest.get(
         "/admin/technical-issues",
         options: ApiUtils.getAuthOptions(),
       );
 
+      debugPrint("✅ Status Code: ${response.statusCode}");
+      debugPrint("📦 Raw Response: ${response.data}");
+      debugPrint("🌐 FULL URL: ${response.requestOptions.uri}");
+
       ApiResponse apiResponse = ApiResponse.fromResponse(response);
 
+      debugPrint("🔍 API Status: ${apiResponse.status}");
+      debugPrint("💬 API Message: ${apiResponse.message}");
+      debugPrint("📊 API Data Type: ${apiResponse.data.runtimeType}");
+      debugPrint("📊 API Data: ${apiResponse.data}");
+
       if (!apiResponse.status) {
+        debugPrint("❌ API returned status=false");
         throw apiResponse.message.toString();
       }
 
       final data = apiResponse.data;
+
+      // Case 1: Direct List
       if (data is List) {
+        debugPrint("✅ Data is List, length: ${data.length}");
+        debugPrint("📋 First Item: ${data.isNotEmpty ? data.first : 'EMPTY'}");
         return data;
       }
+
+      // Case 2: Wrapped Map
       if (data is Map) {
+        debugPrint("🧩 Data is Map, keys: ${data.keys}");
+
         final results = data["results"];
         if (results is List) {
+          debugPrint("✅ Found 'results' list, length: ${results.length}");
           return results;
         }
+
         final issues = data["issues"];
         if (issues is List) {
+          debugPrint("✅ Found 'issues' list, length: ${issues.length}");
           return issues;
         }
+
+        debugPrint("⚠️ No known list key found in map");
       }
 
+      debugPrint("⚠️ Returning empty list");
       return [];
     } on DioException catch (ex) {
+      debugPrint("🚨 DioException occurred");
+
       if (ex.response != null) {
+        debugPrint("❌ Error Status Code: ${ex.response?.statusCode}");
+        debugPrint("❌ Error Response: ${ex.response?.data}");
+
         ApiResponse apiResponse = ApiResponse.fromResponse(ex.response!);
         throw apiResponse.message.toString();
       } else {
+        debugPrint("❌ DioException with no response");
         throw "An error occurred while processing the request.";
       }
-    } catch (ex) {
+    } catch (ex, stackTrace) {
+      debugPrint("🔥 Unknown Error: $ex");
+      debugPrint("🧵 StackTrace: $stackTrace");
       rethrow;
     }
   }

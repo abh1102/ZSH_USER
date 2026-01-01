@@ -103,13 +103,138 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
     );
   }
 
-  String _truncateDescription(String description, {int maxWords = 100}) {
+  String _truncateDescription(String description, {int maxWords = 20}) {
     if (description.isEmpty) return description;
     
     final words = description.split(' ');
     if (words.length <= maxWords) return description;
     
     return '${words.take(maxWords).join(' ')}...';
+  }
+
+  bool _shouldShowReadMore(String description) {
+    if (description.isEmpty) return false;
+    final words = description.split(' ');
+    return words.length > 20;
+  }
+
+  Future<void> _showDescriptionDialog({
+    required String description,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        child: Container(
+          padding: EdgeInsets.all(24.w),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.r),
+            gradient: LinearGradient(
+              colors: [
+                Colors.white,
+                const Color(0xFFF8FDFF),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF00D4FF),
+                      Color(0xFF0099FF),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Description',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 32.w,
+                        height: 32.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20.h),
+              
+              // Description content
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: const Color(0xFFE8F4FD)),
+                ),
+                child: Text(
+                  description.isEmpty ? 'No description available' : description,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.textDark,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              
+              // Close Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00D4FF),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    'Close',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _showTicketDetailsDialog({
@@ -629,6 +754,45 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                                   height: 1.4,
                                 ),
                               ),
+                              if (_shouldShowReadMore(description)) ...[
+                                SizedBox(height: 8.h),
+                                GestureDetector(
+                                  onTap: () => _showDescriptionDialog(description: description),
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF00D4FF),
+                                          Color(0xFF0099FF),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(20.r),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Read More',
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Icon(
+                                          Icons.arrow_forward,
+                                          color: Colors.white,
+                                          size: 14.sp,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),

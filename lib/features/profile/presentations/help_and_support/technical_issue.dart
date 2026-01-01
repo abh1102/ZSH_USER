@@ -12,7 +12,6 @@ import 'package:zanadu/core/routes.dart';
 import 'package:zanadu/features/profile/logic/cubits/about_cubit/about_cubit.dart';
 import 'package:zanadu/features/sessions/widgets/appbar_without_silver.dart';
 import 'package:zanadu/widgets/all_button.dart';
-import 'zendeskservice.dart';
 class HelpSupportTechnicalIssue extends StatefulWidget {
   const HelpSupportTechnicalIssue({super.key});
 
@@ -282,34 +281,14 @@ class _HelpSupportTechnicalIssueState extends State<HelpSupportTechnicalIssue> {
 
                             cubit.emit(AboutLoadingState());
 
-                            String? uploadToken;
-                            String? fileKey;
-
-                            // 👉 If file selected, upload first
-                            if (selectedFile != null) {
-                              final uploadResult = await ZendeskService.uploadFile(selectedFile!.path);
-                              if (uploadResult != null) {
-                                uploadToken = uploadResult["uploadToken"]?.toString();
-                                fileKey = selectedFile!.path.split('/').last.split('\\').last;
-                                print("EXTRACTED TOKEN: $uploadToken, FILEKEY: $fileKey");
-                              } else {
-                                cubit.emit(AboutErrorState("Error uploading file"));
-                                return;
-                              }
-                            }
-
-                            // 👉 Then create ticket
-                            final success = await ZendeskService.createTicket(
-                              category: selectedGender,
-                              description: descriptionController.text.trim(),
-                              uploadToken: uploadToken,
-                              fileKey: fileKey,
-                            );
-
-                            if (success != null) {
-                              cubit.emit(TechnicalIssuePostedState("Technical Issue Created Successfully"));
-                            } else {
-                              cubit.emit(AboutErrorState("Zendesk ticket creation failed"));
+                            try {
+                              await aboutCubit.postIssue(
+                                descrition: descriptionController.text.trim(),
+                                issue: selectedGender,
+                                image: selectedFile?.path,
+                              );
+                            } catch (e) {
+                              cubit.emit(AboutErrorState("Error: $e"));
                             }
                           },
 
