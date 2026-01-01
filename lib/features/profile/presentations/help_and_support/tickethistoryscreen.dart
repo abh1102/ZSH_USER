@@ -640,16 +640,17 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                     
                     // Footer with update button
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
+
                       children: [
-                        Text(
-                          'ID: ${id.isEmpty ? 'N/A' : id}',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: const Color(0xFF9CA3AF),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        // Text(
+                        //   'ID: ${id.isEmpty ? 'N/A' : id}',
+                        //   style: TextStyle(
+                        //     fontSize: 11.sp,
+                        //     color: const Color(0xFF9CA3AF),
+                        //     fontWeight: FontWeight.w500,
+                        //   ),
+                        // ),
                         _updateStatusMenu(issueId: id),
                       ],
                     ),
