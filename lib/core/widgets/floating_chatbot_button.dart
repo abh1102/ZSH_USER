@@ -63,22 +63,21 @@ class _FloatingChatbotButtonState extends State<FloatingChatbotButton> {
                         vertical: 12.h,
                       ),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF00D4FF), // Bright cyan
-                            Color(0xFF0099FF), // Ocean blue
-                            Color(0xFF0066FF), // Deep blue
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        // gradient: const LinearGradient(
+                        //   // colors: [
+                        //   //   Color(0xFF00D4FF),
+                        //   //   Color(0xFF0099FF),// Deep blue
+                        //   // ],
+                        //   begin: Alignment.topLeft,
+                        //   end: Alignment.bottomRight,
+                        // ),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16.r),
                           topRight: Radius.circular(16.r),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF00D4FF).withOpacity(0.3),
+                            color: Colors.greenAccent,
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),

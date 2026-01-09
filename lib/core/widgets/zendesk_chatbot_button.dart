@@ -386,36 +386,41 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF00D4FF).withOpacity(0.6),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                    spreadRadius: 3,
-                  ),
-                  BoxShadow(
-                    color: const Color(0xFF0099FF).withOpacity(0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                // boxShadow: [
+                //   BoxShadow(
+                //     color: Colors.greenAccent,
+                //     blurRadius: 20,
+                //     offset: const Offset(0, 4),
+                //     spreadRadius: 3,
+                //   ),
+                //   BoxShadow(
+                //     color: Colors.greenAccent,
+                //
+                //     blurRadius: 15,
+                //     offset: const Offset(0, 2),
+                //   ),
+                // ],
               ),
-              child: Container(
-                width: 50.w,
-                height: 50.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00D4FF).withOpacity(0.3),                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                    width: 1,
+                child: ClipOval(
+                  child: Container(
+                    width: 50.w,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Icon(
+                      _isChatOpen ? Icons.close : Icons.support_agent,
+                      color: Colors.white,
+                      size: 34.sp,
+                    ),
                   ),
-                ),
-                child: Icon(
-                  _isChatOpen ? Icons.close : Icons.support_agent,
-                  color: Colors.blueAccent,
-                  size: 34.sp,
-                ),
-              ),
+                )
+
             ),
           ),
         ),

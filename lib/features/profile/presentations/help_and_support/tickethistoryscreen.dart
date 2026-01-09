@@ -145,14 +145,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
               Container(
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF00D4FF),
-                      Color(0xFF0099FF),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: Insets.fixedGradient(opacity: 1),
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 child: Row(
@@ -214,7 +207,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00D4FF),
+                    backgroundColor: const Color(0xFF25D366),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                     shape: RoundedRectangleBorder(
@@ -267,18 +260,11 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
               Container(
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF00D4FF),
-                      Color(0xFF0099FF),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: Insets.fixedGradient(opacity: 1),
                   borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00D4FF).withOpacity(0.3),
+                      color: const Color(0xFF25D366).withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -370,7 +356,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00D4FF),
+                    backgroundColor: const Color(0xFF25D366),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                     shape: RoundedRectangleBorder(
@@ -416,14 +402,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
             width: 36.w,
             height: 36.h,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF00D4FF),
-                  Color(0xFF0099FF),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: Insets.fixedGradient(opacity: 1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -474,7 +453,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
       case 'REOPEN':
         return const Color(0xFFEF4444);
       default:
-        return const Color(0xFF00D4FF);
+        return const Color(0xFF25D366);
     }
   }
 
@@ -499,7 +478,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
         );
       default:
         return const LinearGradient(
-          colors: [Color(0xFF00D4FF), Color(0xFF0099FF)],
+          colors: [Color(0xFF25D366), Color(0xFF03C0FF)],
         );
     }
   }
@@ -693,7 +672,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                     offset: const Offset(0, 4),
                   ),
                   BoxShadow(
-                    color: const Color(0xFF00D4FF).withOpacity(0.1),
+                    color: const Color(0xFF25D366).withOpacity(0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -715,14 +694,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF00D4FF),
-                                      Color(0xFF0099FF),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
+                                  gradient: Insets.fixedGradient(opacity: 1),
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: Row(
@@ -761,14 +733,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                                   child: Container(
                                     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                                     decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFF00D4FF),
-                                          Color(0xFF0099FF),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
+                                      gradient: Insets.fixedGradient(opacity: 1),
                                       borderRadius: BorderRadius.circular(20.r),
                                     ),
                                     child: Row(
