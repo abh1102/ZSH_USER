@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId = "com.zanaduhealth.beta"
         minSdkVersion(24)
-        targetSdkVersion(flutter.targetSdkVersion)
+        targetSdkVersion(36)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -34,6 +34,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }
