@@ -5,6 +5,7 @@ import 'package:zanadu/core/constants.dart';
 import 'package:zanadu/core/routes.dart';
 import 'package:zanadu/features/health_coach/data/model/answer_model.dart';
 import 'package:zanadu/features/health_coach/logic/provider/discovery_provider.dart';
+import 'package:zanadu/utils/bmi_utils.dart';
 import 'package:zanadu/features/health_coach/widgets/update_progress.dart';
 import 'package:zanadu/features/sessions/widgets/appbar_without_silver.dart';
 import 'package:zanadu/widgets/all_button.dart';
@@ -33,6 +34,139 @@ class _FirstDiscoveryFormState extends State<FirstDiscoveryForm> {
 
     // Call the dispose method of the superclass
     super.dispose();
+  }
+  
+  Widget _buildBMICalculator(QuestionProvider questionProvider) {
+    // Calculate BMI from existing answers
+    final healthMetrics = BMIUtils.findHealthMetrics(questionProvider.allAnswers);
+    final weight = healthMetrics['weight'];
+    final height = healthMetrics['height'];
+    
+    // Debug print to see what values are being extracted
+    print('BMI Debug - Weight: $weight, Height: $height');
+    print('BMI Debug - All answers count: ${questionProvider.allAnswers.length}');
+    for (var answer in questionProvider.allAnswers) {
+      if (answer is Answer) {
+        print('BMI Debug - Question: "${answer.questionName}", Answer: ${answer.answer}');
+      }
+    }
+    
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 24.h,
+        horizontal: 19.w,
+      ),
+      decoration: BoxDecoration(
+        gradient: Insets.fixedGradient(opacity: 0.3),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: AppColors.primaryGreen,
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.fitness_center,
+                color: AppColors.primaryGreen,
+                size: 24.w,
+              ),
+              width(12),
+              heading2Text(
+                'BMI Calculator',
+                color: AppColors.primaryGreen,
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          if (weight != null && height != null) ...[
+            // Show BMI calculation
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    simpleText(
+                      'Weight: ${weight}kg',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                    ),
+                    simpleText(
+                      'Height: ${height}cm',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                    ),
+                    SizedBox(height: 8.h),
+                    simpleText(
+                      'Your BMI',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textDark,
+                    ),
+                    SizedBox(height: 4.h),
+                    heading2Text(
+                      BMIUtils.formatBMI(BMIUtils.calculateBMI(weight, height)),
+                      color: AppColors.textDark,
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    simpleText(
+                      'Category',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textDark,
+                    ),
+                    SizedBox(height: 4.h),
+                    heading2Text(
+                      BMIUtils.getBMICategory(BMIUtils.calculateBMI(weight, height)),
+                      color: _getCategoryColor(BMIUtils.getBMICategory(BMIUtils.calculateBMI(weight, height))),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ] else ...[
+            // Show missing data message
+            simpleText(
+              'BMI calculation requires weight and height data.',
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textDark,
+            ),
+            SizedBox(height: 8.h),
+            simpleText(
+              'Please make sure you have answered the weight and height questions in the form.',
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+  
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'Underweight':
+        return Colors.blue;
+      case 'Normal weight':
+        return Colors.green;
+      case 'Overweight':
+        return Colors.orange;
+      case 'Obese':
+        return Colors.red;
+      default:
+        return AppColors.textDark;
+    }
   }
 
   @override
@@ -138,6 +272,11 @@ class _FirstDiscoveryFormState extends State<FirstDiscoveryForm> {
                   ),
                 ],
                 height(52),
+                // Show BMI Calculator on the last form (34th question)
+                if (widget.questionIndex == questionProvider.allQuestions.length - 1) ...[
+                  _buildBMICalculator(questionProvider),
+                  height(28),
+                ],
                 Center(
                   child: heading2Text(
                       "${widget.questionIndex + 1}/${questionProvider.allQuestions.length}"),

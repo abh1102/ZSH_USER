@@ -39,10 +39,11 @@ class LoginCubit extends Cubit<LoginState> {
         // Check health intake data
         List<GetAnswerModel> healthIntakeAnswers = await healthrepository
             .fetchAllHealthIntakeAnswer(userModel.userInfo?.userId ?? '');
-        
+
         if (healthIntakeAnswers.isEmpty) {
           emit(LoginHealthLoadedState(userModel));
-        } else {
+        }
+        else {
           emit(LoginLoadedState(userModel));
         }
       } else {
@@ -99,13 +100,14 @@ class LoginCubit extends Cubit<LoginState> {
 
       List<GetAnswerModel> healthIntakeAnswers = await healthrepository
           .fetchAllHealthIntakeAnswer(userModel.userInfo?.userId ?? '');
-
-      if (healthIntakeAnswers.isEmpty) {
-        print("emptyyyyyyyyyyyyyyyyyyyyyyiiiiii");
-        // If health intake data is empty, navigate to the appropriate screen
-        emit(LoginHealthLoadedState(userModel));
-        return;
-      }
+      emit(LoginHealthLoadedState(userModel));
+      return;
+      // if (healthIntakeAnswers.isEmpty) {
+      //   print("emptyyyyyyyyyyyyyyyyyyyyyyiiiiii");
+      //   // If health intake data is empty, navigate to the appropriate screen
+      //   emit(LoginHealthLoadedState(userModel));
+      //   return;
+      // }
 
       emit(LoginLoadedState(userModel));
     } catch (e) {

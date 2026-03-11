@@ -65,7 +65,7 @@ class _SpecialDiscoveryFormReviewScreenState
           }
         },
         child: Scaffold(
-            appBar:  AppBarWithBackButtonWOSilver(
+            appBar: AppBarWithBackButtonWOSilver(
               firstText: "${widget.category} Intake",
               secondText: "Form",
             ),
