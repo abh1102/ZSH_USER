@@ -69,6 +69,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height(16),
               IconWithTextRow(
                 onpressed: () {
+                  Routes.goTo(Screens.planVariationScreen);
+                },
+                svg: "assets/icons/health_score_icon.svg",
+                text: "Plan Of Variations",
+              ),
+
+              height(16),
+              IconWithTextRow(
+                onpressed: () {
                   Routes.goTo(Screens.editProfileNotificationScreen);
                 },
                 svg: "assets/icons/Group (10).svg",

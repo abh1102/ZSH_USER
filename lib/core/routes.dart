@@ -40,6 +40,7 @@ import 'package:zanadu/features/onetimepasscode/presentation/one_time_password.d
 import 'package:zanadu/features/profile/logic/cubits/about_cubit/about_cubit.dart';
 import 'package:zanadu/features/profile/logic/cubits/get_all_health_cubit/get_health_cubit.dart';
 import 'package:zanadu/features/profile/logic/cubits/notification_cubit/notification_cubit.dart';
+import 'package:zanadu/features/profile/logic/cubit/plan_variation_cubit/plan_variation_cubit.dart';
 import 'package:zanadu/features/profile/logic/provider/edit_profile_provider.dart';
 import 'package:zanadu/features/profile/presentations/calendar_reminder_screen.dart';
 import 'package:zanadu/features/profile/presentations/edit_profile_screen.dart';
@@ -58,6 +59,7 @@ import 'package:zanadu/features/profile/presentations/my_account/one_time_pass_p
 import 'package:zanadu/features/profile/presentations/my_account/one_time_passcode.dart';
 import 'package:zanadu/features/profile/presentations/my_account/two_factor_auth.dart';
 import 'package:zanadu/features/profile/presentations/pdf_viewer_screen.dart';
+import 'package:zanadu/features/profile/presentations/plan_variation_screen.dart';
 import 'package:zanadu/features/profile/presentations/profile_notification.dart';
 import 'package:zanadu/features/profile/presentations/profile_screen.dart';
 import 'package:zanadu/features/profile/presentations/zh_score_card.dart';
@@ -111,6 +113,7 @@ class Screens {
   static const myZhScoreCard = 'myZhScoreCard';
   static const editProfileScreen = 'editProfileScreen';
   static const editProfileNotificationScreen = 'editProfileNotificationScreen';
+  static const planVariationScreen = 'planVariationScreen';
   static const calenderReminder = 'calenderReminder';
   static const myAccount = 'myAccount';
   static const myPlan = "myPlan";
@@ -267,6 +270,14 @@ class Routes {
           builder: (context) => BlocProvider(
             create: (context) => NotificationCubit(),
             child: const ProfileNotificationScreen(),
+          ),
+        );
+
+      case Screens.planVariationScreen:
+        return CupertinoPageRoute(
+          builder: (context) => BlocProvider(
+            create: (context) => PlanVariationCubit(),
+            child: const PlanVariationScreen(),
           ),
         );
 
