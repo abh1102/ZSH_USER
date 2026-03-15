@@ -77,17 +77,17 @@ class _OnBoardingTwoScreenState extends State<OnBoardingTwoScreen> {
                                 color: AppColors.white,
                                 align: TextAlign.center),
                           ),
-                          height(45),
-                          GestureDetector(
-                            onTap: () {
-                              Routes.goTo(Screens.signupscreenfirst);
-                            },
-                            child: const SimpleButton(
-                              size: 16,
-                              weight: FontWeight.w600,
-                              text: "New Signup",
-                            ),
-                          ),
+                          // height(45),
+                          // GestureDetector(
+                          //   onTap: () {
+                          //     Routes.goTo(Screens.signupscreenfirst);
+                          //   },
+                          //   child: const SimpleButton(
+                          //     size: 16,
+                          //     weight: FontWeight.w600,
+                          //     text: "New Signup",
+                          //   ),
+                          // ),
                           height(21),
                           GestureDetector(
                             onTap: () {
