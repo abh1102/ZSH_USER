@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 class ZendeskChatbotButton extends StatefulWidget {
   final String zendeskKey;
 
@@ -19,7 +18,7 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
   Offset _position = Offset(0, 0);
   bool _isDragging = false;
   late WebViewController _webViewController;
-
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -33,15 +32,32 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (String url) {
+            setState(() {
+              _isLoading = true;
+            });
             debugPrint('Zendesk page started loading: $url');
           },
+
           onPageFinished: (String url) {
+            setState(() {
+              _isLoading = false;
+            });
             debugPrint('Zendesk page finished loading: $url');
           },
           onWebResourceError: (WebResourceError error) {
             debugPrint('Zendesk error: ${error.description}');
           },
         ),
+      )
+      ..addJavaScriptChannel(
+        'onChatClose',
+        onMessageReceived: (args) {
+          debugPrint('Zendesk chat closed from within WebView');
+          // Close chat from Flutter side when Zendesk closes internally
+          if (_isChatOpen) {
+            _toggleChat();
+          }
+        },
       )
       ..loadHtmlString(_getZendeskHtml(), baseUrl: 'https://static.zdassets.com');
   }
@@ -83,7 +99,7 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin-bottom: 16px;
+            margin-bottom:16px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -202,6 +218,14 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
                     try {
                         zE('messenger', 'open');
                         console.log('Zendesk messenger opened successfully');
+                        
+                        // Monitor for messenger close events
+                        zE('messenger:on', 'close', function() {
+                            console.log('Zendesk messenger closed from within');
+                            // Notify Flutter app using webview_flutter channel
+                            onChatClose.postMessage('chat_closed');
+                        });
+                        
                     } catch(e) {
                         console.error('Error opening messenger:', e);
                         document.getElementById('error').style.display = 'flex';
@@ -238,12 +262,53 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
     setState(() {
       _isChatOpen = !_isChatOpen;
     });
+
+    if (!_isChatOpen) {
+      // When closing chat, clean up WebView to prevent white screen
+      _cleanupWebView();
+    } else {
+      // When opening chat, reload Zendesk content
+      _reloadZendesk();
+    }
   }
 
+  void _cleanupWebView() {
+    try {
+      // Clear WebView content when closing
+      _webViewController.loadHtmlString('');
+      _webViewController.clearCache();
+    } catch (e) {
+      debugPrint('Error cleaning up WebView: $e');
+    }
+  }
+
+  void _reloadZendesk() {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      _webViewController.loadHtmlString(
+        _getZendeskHtml(),
+        baseUrl: 'https://static.zdassets.com',
+      );
+
+      /// ⏳ fallback loader stop
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+
+    } catch (e) {
+      debugPrint('Error reloading Zendesk: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
     return Stack(
       children: [
         if (_isChatOpen)
@@ -338,14 +403,43 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
                     //   ),
                     // ),
                     Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(16.r),
-                          bottomRight: Radius.circular(16.r),
-                        ),
-                        child: WebViewWidget(
-                          controller: _webViewController,
-                        ),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16.r),
+                              bottomRight: Radius.circular(16.r),
+                            ),
+                            child: WebViewWidget(
+                              controller: _webViewController,
+                            ),
+                          ),
+
+                          /// 🔥 Loader overlay
+                          if (_isLoading)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(16.r),
+                                  bottomRight: Radius.circular(16.r),
+                                ),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 12.h),
+                                    Text(
+                                      "Connecting to chatbot...",
+                                      style: TextStyle(fontSize: 14.sp),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ],
@@ -381,26 +475,25 @@ class _ZendeskChatbotButtonState extends State<ZendeskChatbotButton> {
               }
             },
             child: Container(
-              width: 60.w,
-              height: 60.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                // boxShadow: [
-                //   BoxShadow(
-                //     color: Colors.greenAccent,
-                //     blurRadius: 20,
-                //     offset: const Offset(0, 4),
-                //     spreadRadius: 3,
-                //   ),
-                //   BoxShadow(
-                //     color: Colors.greenAccent,
-                //
-                //     blurRadius: 15,
-                //     offset: const Offset(0, 2),
-                //   ),
-                // ],
-              ),
+                width: 60.w,
+                height: 60.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: const Color(0xFF00D4FF).withOpacity(0.6),
+                  //     blurRadius: 20,
+                  //     offset: const Offset(0, 4),
+                  //     spreadRadius: 3,
+                  //   ),
+                  //   BoxShadow(
+                  //     color: const Color(0xFF0099FF).withOpacity(0.4),
+                  //     blurRadius: 15,
+                  //     offset: const Offset(0, 2),
+                  //   ),
+                  // ],
+                ),
                 child: ClipOval(
                   child: Container(
                     width: 50.w,
